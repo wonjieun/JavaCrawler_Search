@@ -1,14 +1,11 @@
 package kr.ac.hansung;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -24,11 +21,11 @@ public class Xml_Parser_Juso_Search implements Xml_Parser {
 	}
 
 	public void apiParserSearch() throws Exception {
-		URL url = new URL(getURLParam(null));
-
+		URL url = new URL(getURLParam("청구빌라"));
 		XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
 		factory.setNamespaceAware(true);
 		XmlPullParser xpp = factory.newPullParser();
+		
 		BufferedInputStream bis = new BufferedInputStream(url.openStream());
 		xpp.setInput(bis, "utf-8");
 
@@ -43,10 +40,13 @@ public class Xml_Parser_Juso_Search implements Xml_Parser {
 			
 			if (event_type == xpp.START_TAG) {
 				tag = xpp.getName();
-				//System.out.println("Start tag = " + tag);
+				System.out.println("Start tag = " + tag);
 				
 			} else if (event_type == xpp.TEXT) {
 				
+				if (tag.equals("totalCount")) {
+					System.out.println("totalCount=" + xpp.getText());
+				}
 				if (tag.equals("jibunAddr")) {
 					jibunAddr = xpp.getText();
 				} else if (tag.equals("siNm")) {
@@ -59,7 +59,7 @@ public class Xml_Parser_Juso_Search implements Xml_Parser {
 				
 			} else if (event_type == xpp.END_TAG) {
 				tag = xpp.getName();
-				//System.out.println("End tag = " + tag);
+				System.out.println("End tag = " + tag);
 
 				if (tag.equals("juso")) {
 					// DTO 객체를 만들어 여기에 데이터를 집어넣어준다.
@@ -93,15 +93,14 @@ public class Xml_Parser_Juso_Search implements Xml_Parser {
 	 * 
 	 * String jibunAddr = null, siNm = null, sggNm = null, emdNm = null; }
 	 */
-	public String getURLParam(String data) {
-		String url = PARAM_URL + ROF + APT_NAME + KEY;
+	public String getURLParam(String data) throws IOException {
+		String url = PARAM_URL + ROF + APT_NAME + URLEncoder.encode(data,"UTF-8") + KEY;
 		/*
 		 * if(search != null){ url = url+"&yadmNm"+search; }
 		 */
 		return url;
 	}
 
-	public void printList(ArrayList<DTO> list) {
-	}
+	public void printList(ArrayList<DTO> list) { }
 
 }
